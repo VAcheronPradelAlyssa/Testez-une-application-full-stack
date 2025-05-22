@@ -52,8 +52,7 @@ describe('LoginComponent', () => {
         ReactiveFormsModule
       ]
     })
-      .compileComponents();
-
+    .compileComponents();
   }));
 
   beforeEach(() => {
@@ -70,18 +69,15 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call login and navigate on success', () => {
-    // Arrange
-    const loginData = { email: 'test@example.com', password: 'password123' };
+  it('should call login and navigate on success with real credentials', () => {
+    const loginData = { email: 'yoga@studio.com', password: 'test!1234' };
     component.form.setValue(loginData);
 
-    const fakeResponse = { token: 'jwt-token' };
+    const fakeResponse = { token: 'jwt-token', id: 1, username: 'yoga@studio.com', firstName: 'Admin', lastName: 'Admin', isAdmin: true };
     (authServiceMock.login as jest.Mock).mockReturnValue(of(fakeResponse));
 
-    // Act
     component.submit();
 
-    // Assert
     expect(authServiceMock.login).toHaveBeenCalledWith(loginData);
     expect(sessionServiceMock.logIn).toHaveBeenCalledWith(fakeResponse);
     expect(routerMock.navigate).toHaveBeenCalledWith(['/sessions']);
@@ -115,9 +111,39 @@ describe('LoginComponent', () => {
     expect(component.form.valid).toBe(false);
     expect(component.form.controls.password.hasError('required')).toBe(true);
 
-    // Password min length (remplace Validators.min par Validators.minLength dans ton component)
-    component.form.setValue({ email: 'test@example.com', password: '12' });
+    // Password min value (Validators.min(3) attend un nombre >= 3)
+    component.form.setValue({ email: 'test@example.com', password: '2' });
     expect(component.form.valid).toBe(false);
-    expect(component.form.controls.password.hasError('minlength')).toBe(true);
+    expect(component.form.controls.password.hasError('min')).toBe(true);
+
+    component.form.setValue({ email: 'test@example.com', password: '3' });
+    expect(component.form.controls.password.hasError('min')).toBe(false);
+  });
+
+  it('should display error message on login failure', () => {
+    component.form.setValue({ email: 'wrong@example.com', password: 'badpass' });
+    (authServiceMock.login as jest.Mock).mockReturnValue(throwError(() => new Error('Unauthorized')));
+
+    component.submit();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.error')?.textContent).toContain('An error occurred');
+  });
+
+  it('should disable submit button when form is invalid', () => {
+    component.form.setValue({ email: '', password: '' });
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('button[type="submit"]');
+    expect(button.disabled).toBe(true);
+  });
+
+  it('should enable submit button when form is valid', () => {
+    component.form.setValue({ email: 'yoga@studio.com', password: 'test!1234' });
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('button[type="submit"]');
+    expect(button.disabled).toBe(false);
   });
 });
