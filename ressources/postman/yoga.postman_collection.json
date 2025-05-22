@@ -24,11 +24,11 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/auth/login",
+							"raw": "localhost:8081/api/auth/login",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"auth",
@@ -53,11 +53,11 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/auth/register",
+							"raw": "localhost:8081/api/auth/register",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"auth",
@@ -78,11 +78,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/teacher",
+							"raw": "localhost:8081/api/teacher",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"teacher"
@@ -97,11 +97,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/teacher/:id",
+							"raw": "localhost:8081/api/teacher/:id",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"teacher",
@@ -128,11 +128,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/session",
+							"raw": "localhost:8081/api/session",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"session"
@@ -147,11 +147,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/session/:id",
+							"raw": "localhost:8081/api/session/:id",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"session",
@@ -182,11 +182,11 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/session",
+							"raw": "localhost:8081/api/session",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"session"
@@ -210,11 +210,11 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/session/:id",
+							"raw": "localhost:8081/api/session/:id",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"session",
@@ -236,11 +236,11 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/session/:id",
+							"raw": "localhost:8081/api/session/:id",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"session",
@@ -262,11 +262,11 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/session/:id/participate/:userId",
+							"raw": "localhost:8081/api/session/:id/participate/:userId",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"session",
@@ -294,11 +294,11 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/session/:id/participate/:userId",
+							"raw": "localhost:8081/api/session/:id/participate/:userId",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"session",
@@ -331,11 +331,11 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/user/:id",
+							"raw": "localhost:8081/api/user/:id",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"user",
@@ -357,11 +357,11 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/user/:id",
+							"raw": "localhost:8081/api/user/:id",
 							"host": [
 								"localhost"
 							],
-							"port": "8080",
+							"port": "8081",
 							"path": [
 								"api",
 								"user",
