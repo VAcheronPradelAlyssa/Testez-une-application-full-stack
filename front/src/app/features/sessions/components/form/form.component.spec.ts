@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { expect } from '@jest/globals';
@@ -105,6 +105,23 @@ describe('FormComponent', () => {
       date: '2025-06-01',
       teacher_id: '1',
       description: 'Desc'
+    });
+  });
+
+  it('devrait appeler update() quand sessionForm est valide et onUpdate=true', () => {
+    component.onUpdate = true;
+    component.sessionForm!.patchValue({
+      name: 'Modifiée',
+      date: '2025-06-02',
+      teacher_id: '1',
+      description: 'Desc modifiée'
+    });
+    component.submit();
+    expect(sessionApiServiceMock.update).toHaveBeenCalledWith('1', {
+      name: 'Modifiée',
+      date: '2025-06-02',
+      teacher_id: '1',
+      description: 'Desc modifiée'
     });
   });
 });
