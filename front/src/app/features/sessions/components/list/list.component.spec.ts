@@ -128,4 +128,31 @@ it('should render detail and edit buttons for each session when admin', () => {
     const cards = fixture.debugElement.queryAll(By.css('mat-card.item'));
     expect(cards.length).toBe(mockSessions.length);
   });
+  it('should render only detail buttons when user is not admin', () => {
+  mockSessionService.sessionInformation = {
+    admin: false,
+    token: 'mock-token',
+    type: 'user',
+    id: 2,
+    username: 'basicUser',
+    firstName: 'Basic',
+    lastName: 'User'
+  };
+  fixture = TestBed.createComponent(ListComponent);
+  component = fixture.componentInstance;
+  fixture.detectChanges();
+
+  const cards = fixture.debugElement.queryAll(By.css('mat-card.item'));
+  expect(cards.length).toBe(mockSessions.length);
+
+  cards.forEach(card => {
+const detailBtn = card.query(By.css('mat-icon'));
+expect(detailBtn.nativeElement.textContent.trim().toLowerCase()).toBe('search');
+    const editBtn = card.query(By.css('button[routerLink*="update"]'));
+
+    expect(detailBtn).toBeTruthy(); // Le bouton détail doit être présent
+    expect(editBtn).toBeNull();     // Le bouton edit ne doit pas être présent
+  });
+});
+
 });

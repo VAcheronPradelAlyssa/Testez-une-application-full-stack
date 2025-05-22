@@ -146,4 +146,39 @@ describe('LoginComponent', () => {
     const button = fixture.nativeElement.querySelector('button[type="submit"]');
     expect(button.disabled).toBe(false);
   });
+  it('should toggle password visibility', () => {
+  component.hide = true;
+  fixture.detectChanges();
+
+  const toggleButton = fixture.nativeElement.querySelector('button[mat-icon-button]');
+  const passwordInput = fixture.nativeElement.querySelector('input[type="password"]');
+
+  expect(passwordInput).toBeTruthy();
+  expect(toggleButton.textContent).toContain('visibility_off');
+
+  toggleButton.click();
+  fixture.detectChanges();
+
+  const textInput = fixture.nativeElement.querySelector('input[type="text"]');
+  expect(textInput).toBeTruthy();
+  expect(toggleButton.textContent).toContain('visibility');
+});
+
+  it('should navigate to /sessions after successful login', () => {
+  const loginData = { email: 'yoga@studio.com', password: 'test!1234' };
+  component.form.setValue(loginData);
+
+  const fakeResponse = { token: 'jwt-token', id: 1, username: 'yoga@studio.com', firstName: 'Admin', lastName: 'Admin', isAdmin: true };
+  (authServiceMock.login as jest.Mock).mockReturnValue(of(fakeResponse));
+
+  component.submit();
+
+  expect(routerMock.navigate).toHaveBeenCalledWith(['/sessions']);
+});
+it('should initialize the form with default values', () => {
+  expect(component.form.value).toEqual({ email: '', password: '' });
+  expect(component.form.controls.email.valid).toBe(false);
+  expect(component.form.controls.password.valid).toBe(false);
+});
+
 });

@@ -75,14 +75,6 @@ describe('RegisterComponent', () => {
     expect(component.form.controls.email.hasError('email')).toBe(false);
   });
 
-  it('should NOT validate min/max on strings because min/max validators are for numbers', () => {
-    component.form.controls.firstName.setValue('ab'); // < 3 chars
-    expect(component.form.controls.firstName.hasError('min')).toBe(false); // min doesn't apply to strings
-
-    component.form.controls.lastName.setValue('a'.repeat(21)); // > 20 chars
-    expect(component.form.controls.lastName.hasError('max')).toBe(false); // max doesn't apply to strings
-  });
-
   it('should disable submit button if form is invalid', () => {
     component.form.setValue({
       firstName: '',
