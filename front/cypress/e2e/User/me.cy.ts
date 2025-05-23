@@ -1,15 +1,8 @@
 describe('User e2e me test', () => {
   it('Me', () => {
-
     let sessionUsers = [];
 
-    // 1. Visiter la page login et remplir le formulaire
-    cy.visit('/login');
-    cy.get('input[formControlName=email]').type('john.doe@example.com');
-    cy.get('input[formControlName=password]').type('SecurePassword123!');
-    cy.get('form').submit();
-
-    // 2. Intercepter la requête POST login pour valider le token (optionnel si backend réel)
+    // 1. Intercepter toutes les requêtes REST avant la visite ou les actions utilisateur
     cy.intercept('POST', '/api/auth/login', {
       statusCode: 200,
       body: {
@@ -18,75 +11,62 @@ describe('User e2e me test', () => {
       }
     }).as('loginRequest');
 
-    // 3. Attendre la redirection vers /sessions (login réussi)
-    cy.url().should('include', '/sessions');
+    cy.intercept('GET', '/api/user/1', {
+      id: 1,
+      username: 'JohnDoe',
+      firstName: 'John',
+      lastName: 'Doe',
+      email: "john.doe@example.com",
+      admin: false,
+      password: "password",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }).as('user');
 
-    // 4. Intercepter les requêtes GET qui seront faites après login
-
-    // GET user/1 (ou /api/user/me selon API)
-    cy.intercept(
-      {
-        method: 'GET',
-        url: '/api/user/1',
-      },
-      {
-        id: 1,
-        username: 'JohnDoe',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: "john.doe@example.com",
-        admin: false,
-        password: "password",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-    ).as('user');
-
-    // GET /api/session (liste des sessions)
-    cy.intercept(
-      {
-        method: 'GET',
-        url: '/api/session',
-      },
-      [
-        {
-          id: 1,
-          name: 'Session name',
-          date: new Date().toISOString(),
-          teacher_id: 1,
-          description: "A small description",
-          users: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ]).as('session');
-
-    // GET /api/session/1 (détail d'une session)
-    cy.intercept(
-      {
-        method: 'GET',
-        url: '/api/session/1',
-      },
+    cy.intercept('GET', '/api/session', [
       {
         id: 1,
         name: 'Session name',
         date: new Date().toISOString(),
         teacher_id: 1,
         description: "A small description",
-        users: sessionUsers,
+        users: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
-    ).as('sessionDetail');
+    ]).as('session');
 
-    // 5. Clique sur le lien vers la page /me (détails utilisateur)
+    cy.intercept('GET', '/api/session/1', {
+      id: 1,
+      name: 'Session name',
+      date: new Date().toISOString(),
+      teacher_id: 1,
+      description: "A small description",
+      users: sessionUsers,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }).as('sessionDetail');
+
+    // 2. Maintenant on visite la page login
+    cy.visit('/login');
+
+    // 3. Remplir le formulaire et soumettre
+    cy.get('input[formControlName=email]').type('john.doe@example.com');
+    cy.get('input[formControlName=password]').type('SecurePassword123!');
+    cy.get('form').submit();
+
+    // 4. Attendre la réponse mockée du login
+    cy.wait('@loginRequest');
+
+    // 5. Attendre la redirection vers /sessions
+    cy.url().should('include', '/sessions');
+
+    // 6. Cliquer vers la page /me
     cy.get('span[routerLink=me]').click();
 
-    // 6. Vérifie l'URL et les infos affichées
+    // 7. Vérifier l'URL et le contenu de la page /me
     cy.url().should('include', '/me');
     cy.get('p').contains("Name: John DOE");
     cy.get('p').contains("Email: john.doe@example.com");
-
-
   });
 });
