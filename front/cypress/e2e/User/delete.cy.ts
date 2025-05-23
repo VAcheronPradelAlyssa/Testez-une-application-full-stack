@@ -1,92 +1,87 @@
-describe('User e2e me test with delete account', () => {
-  it('Me and delete account', () => {
+describe('Suppression utilisateur - flow mocké complet', () => {
+  // 1. Données fictives
+  const fakeSession = {
+    id: 2,
+    name: "Pilates du soir",
+    date: new Date(),
+    teacher_id: 2,
+    description: "Un cours doux pour finir la journée en détente.",
+    users: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
 
-    let sessionUsers = [];
+  const fakeUser = {
+    id: 2,
+    firstName: 'Alice',
+    lastName: 'Martin',
+    email: 'alice.martin@example.org',
+    admin: false,
+    createdAt: '2024-02-10T09:00:00Z',
+    updatedAt: '2024-05-10T09:00:00Z'
+  };
 
-    // Connexion
-    cy.visit('/login');
-    cy.get('input[formControlName=email]').type('john.doe@example.com');
-    cy.get('input[formControlName=password]').type('SecurePassword123!');
-    cy.get('form').submit();
-
-    // Interception POST login
+  beforeEach(() => {
+    // Intercept login
     cy.intercept('POST', '/api/auth/login', {
       statusCode: 200,
-      body: {
-        token: 'fake-jwt-token',
-        username: 'john.doe@example.com'
-      }
-    }).as('loginRequest');
+      body: { id: 2, token: 'fake-jwt-token', username: 'alice.martin@example.org' }
+    }).as('login');
 
-    // Attendre la redirection vers /sessions
-    cy.url().should('include', '/sessions');
+    // Intercept GET /api/session (listing)
+    cy.intercept('GET', '/api/session', {
+      statusCode: 200,
+      body: [fakeSession]
+    }).as('getSessions');
 
-    // Interceptions GET utilisateur et sessions
-    cy.intercept('GET', '/api/user/1', {
-      id: 1,
-      username: 'JohnDoe',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: "john.doe@example.com",
-      admin: false,
-      password: "password",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }).as('user');
+    // Intercept GET /api/user/2 (pour /me)
+    cy.intercept('GET', '/api/user/2', {
+      statusCode: 200,
+      body: fakeUser
+    }).as('getUser');
 
-    cy.intercept('GET', '/api/session', [
-      {
-        id: 1,
-        name: 'Session name',
-        date: new Date().toISOString(),
-        teacher_id: 1,
-        description: "A small description",
-        users: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ]).as('session');
-
-    cy.intercept('GET', '/api/session/1', {
-      id: 1,
-      name: 'Session name',
-      date: new Date().toISOString(),
-      teacher_id: 1,
-      description: "A small description",
-      users: sessionUsers,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }).as('sessionDetail');
-
-    // Navigation vers /me
-    cy.get('span[routerLink=me]').click();
-    cy.url().should('include', '/me');
-
-    cy.get('p').contains("Name: John DOE");
-    cy.get('p').contains("Email: john.doe@example.com");
-
-    // --- Suppression du compte ---
-
-    // Interception de la requête DELETE
-    cy.intercept('DELETE', '/api/user/1', {
+    // Intercept DELETE /api/user/2 (suppression)
+    cy.intercept('DELETE', '/api/user/2', {
       statusCode: 200,
       body: { message: 'User deleted successfully' }
     }).as('deleteUser');
+  });
 
-    // Clique sur le bouton "Delete my account"
-    // (adapter le sélecteur au bouton exact de ta page)
-    cy.contains('Delete my account').click();
+  it('Utilisateur connecté, consulte ses sessions, va dans /me et voit le bouton delete', () => {
+    // 2. Connexion
+    cy.visit('/login');
+    cy.get('input[formControlName=email]').type('alice.martin@example.org');
+    cy.get('input[formControlName=password]').type('superSecret123');
+    cy.get('form').submit();
+    cy.wait('@login').then(() => {
+      // Stocke la session utilisateur (adapte le nom de la clé si nécessaire)
+      window.localStorage.setItem('sessionInformation', JSON.stringify({
+        id: 2,
+        token: 'fake-jwt-token',
+        username: 'alice.martin@example.org'
+      }));
+    });
 
-    // On peut confirmer un modal ou un prompt si tu en as, par exemple :
-    // cy.get('.confirm-delete-button').click();
+    // 3. Vérifie l’arrivée sur /sessions et la présence d'une session
+    cy.url().should('include', '/sessions');
+    cy.wait('@getSessions');
+    cy.contains(fakeSession.name);
+    cy.contains(fakeSession.description);
 
+    // 4. Clique sur "Account"
+    cy.contains('span.link', 'Account').click();
 
-
-    // Vérifie qu'après suppression on est redirigé vers /login (ou une autre page)
-    cy.url().should('include', '/');
-
-    // Ou si tu affiches un message de succès :
-    // cy.contains('User deleted successfully').should('be.visible');
-
+    // 5. Vérification sur /me
+    cy.url().should('include', '/me');
+    cy.wait('@getUser');
+    cy.contains('Name: Alice MARTIN');
+    cy.contains('alice.martin@example.org');
+    cy.contains('Delete my account:');
+    cy.get('button').contains(/delete/i).should('be.visible');
+    
+    // 6. Clique sur Delete et vérifie le message de succès
+    cy.get('button').contains(/delete/i).click();
+    cy.wait('@deleteUser');
+    cy.get('.mat-snack-bar-container').should('be.visible').and('contain', 'Your account has been deleted !');
   });
 });
