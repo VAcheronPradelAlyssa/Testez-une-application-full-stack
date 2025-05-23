@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Session edit e2e test', () => {
   const teachers = [
     {
