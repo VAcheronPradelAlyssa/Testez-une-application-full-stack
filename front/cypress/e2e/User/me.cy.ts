@@ -1,72 +1,59 @@
-describe('User e2e me test', () => {
-  it('Me', () => {
-    let sessionUsers = [];
+/// <reference types="cypress" />
 
-    // 1. Intercepter toutes les requêtes REST avant la visite ou les actions utilisateur
+describe('E2E Test for Existing User Profile (mock)', () => {
+  it('Should display user information on /me page (mocked)', () => {
+    const email = 'amelie.durand@example.com';
+    const password = 'motdepasse123';
+
+    // Mock login API
     cy.intercept('POST', '/api/auth/login', {
       statusCode: 200,
       body: {
-        token: 'fake-jwt-token',
-        username: 'john.doe@example.com'
+        id: 5,
+        token: 'mocked-jwt-token',
+        username: email
       }
     }).as('loginRequest');
 
-    cy.intercept('GET', '/api/user/1', {
-      id: 1,
-      username: 'JohnDoe',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: "john.doe@example.com",
-      admin: false,
-      password: "password",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }).as('user');
-
-    cy.intercept('GET', '/api/session', [
-      {
-        id: 1,
-        name: 'Session name',
-        date: new Date().toISOString(),
-        teacher_id: 1,
-        description: "A small description",
-        users: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+    // Mock GET user API (adapt path and id as in your backend)
+    cy.intercept('GET', '/api/user/5', {
+      statusCode: 200,
+      body: {
+        id: 5,
+        firstName: 'Amélie',
+        lastName: 'Durand',
+        email: email,
+        admin: false,
+        createdAt: '2024-03-10T10:00:00Z',
+        updatedAt: '2024-05-10T15:42:00Z'
       }
-    ]).as('session');
+    }).as('getUser');
 
-    cy.intercept('GET', '/api/session/1', {
-      id: 1,
-      name: 'Session name',
-      date: new Date().toISOString(),
-      teacher_id: 1,
-      description: "A small description",
-      users: sessionUsers,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }).as('sessionDetail');
-
-    // 2. Maintenant on visite la page login
+    // Visit login page and perform login
     cy.visit('/login');
-
-    // 3. Remplir le formulaire et soumettre
-    cy.get('input[formControlName=email]').type('john.doe@example.com');
-    cy.get('input[formControlName=password]').type('SecurePassword123!');
+    cy.get('input[formControlName=email]').type(email);
+    cy.get('input[formControlName=password]').type(password);
     cy.get('form').submit();
 
-    // 4. Attendre la réponse mockée du login
-    cy.wait('@loginRequest');
+    // Wait for login, set session information in storage as expected by your app
+    cy.wait('@loginRequest').then(() => {
+      window.localStorage.setItem('sessionInformation', JSON.stringify({
+        id: 5,
+        token: 'mocked-jwt-token',
+        username: email
+      }));
+    });
 
-    // 5. Attendre la redirection vers /sessions
+    // Check redirect to /sessions
     cy.url().should('include', '/sessions');
 
-    // 6. Cliquer vers la page /me
-    cy.get('span[routerLink=me]').click();
-
-    // 7. Vérifier l'URL et le contenu de la page /me
+    // Go to /me by clicking the Account link (adapt selector if needed)
+    cy.contains('span.link', 'Account').click();
     cy.url().should('include', '/me');
-    cy.get('p').contains("Name: John DOE");
-    cy.get('p').contains("Email: john.doe@example.com");
+
+    // Wait for user details and check displayed information
+    cy.wait('@getUser');
+    cy.get('p').contains('Name: Amélie DURAND');
+    cy.get('p').contains('Email: amelie.durand@example.com');
   });
 });
