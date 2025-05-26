@@ -6,6 +6,13 @@ import { RegisterComponent } from './register.component';
 import { AuthService } from '../../services/auth.service';
 import { expect } from '@jest/globals';
 
+// Ajout des imports Angular Material pour éviter les erreurs NG0304
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
@@ -18,7 +25,14 @@ describe('RegisterComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [RegisterComponent],
-      imports: [ReactiveFormsModule],
+      imports: [
+        ReactiveFormsModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        BrowserAnimationsModule
+      ],
       providers: [
         { provide: AuthService, useValue: authServiceMock },
         { provide: Router, useValue: routerMock }
