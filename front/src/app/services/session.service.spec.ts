@@ -11,7 +11,7 @@ describe('SessionService', () => {
     service = TestBed.inject(SessionService);
   });
 
-  it('should be created', () => {
+  it('should create', () => {
     expect(service).toBeTruthy();
   });
 

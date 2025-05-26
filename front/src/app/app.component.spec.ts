@@ -47,13 +47,21 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should log out the user correctly', () => {
+  it('should call sessionService.$isLogged when $isLogged is called', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
+    app.$isLogged();
+    expect(sessionServiceMock.$isLogged).toHaveBeenCalled();
+  });
 
+  it('should log out the user and navigate to home', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
     app.logout();
-
     expect(sessionServiceMock.logOut).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['']);
   });
+
+
+
 });
