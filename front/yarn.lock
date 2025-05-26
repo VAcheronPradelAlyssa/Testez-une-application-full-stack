@@ -6347,7 +6347,7 @@
     "merge-stream" "^2.0.0"
     "supports-color" "^8.0.0"
 
-"jest@^28.0.0", "jest@>=28", "jest@19.x - 28.x", "jest@28.1.3":
+"jest@^28.0.0", "jest@^28.1.3", "jest@>=28", "jest@19.x - 28.x":
   "integrity" "sha512-N4GT5on8UkZgH0O5LUavMRV1EDEhNTL0KEfRmDIeZHSV7p2XgLoY9t9VDUgL6o+yfdgYHVxuz81G8oB9VG5uyA=="
   "resolved" "https://registry.npmjs.org/jest/-/jest-28.1.3.tgz"
   "version" "28.1.3"
@@ -9356,7 +9356,7 @@
   "resolved" "https://registry.npmjs.org/tree-kill/-/tree-kill-1.2.2.tgz"
   "version" "1.2.2"
 
-"ts-jest@^28.0.0", "ts-jest@28.0.8":
+"ts-jest@^28.0.0", "ts-jest@^28.0.8":
   "integrity" "sha512-5FaG0lXmRPzApix8oFG8RKjAz4ehtm8yMKOTy5HX3fY6W8kmvOrmcY0hKDElW52FJov+clhUbrKAqofnj4mXTg=="
   "resolved" "https://registry.npmjs.org/ts-jest/-/ts-jest-28.0.8.tgz"
   "version" "28.0.8"
