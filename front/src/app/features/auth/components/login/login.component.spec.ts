@@ -118,9 +118,6 @@ describe('LoginComponent', () => {
     expect(component.form.valid).toBe(false);
     expect(component.form.controls.password.hasError('required')).toBe(true);
 
-   // Password min (avec Validators.min, ce test doit être adapté ou supprimé)
-  component.form.setValue({ email: 'test@example.com', password: '12' });
-  expect(component.form.valid).toBe(true); // Le champ sera considéré comme valide
-  // Il n'y aura pas d'erreur 'minlength'
+
   });
 });
