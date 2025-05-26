@@ -18,7 +18,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { expect } from '@jest/globals';
 
-
 describe('FormComponent', () => {
   let component: FormComponent;
   let fixture: ComponentFixture<FormComponent>;
@@ -74,7 +73,6 @@ describe('FormComponent', () => {
         BrowserAnimationsModule,
         NoopAnimationsModule
       ],
-      declarations: [FormComponent],
       providers: [
         { provide: SessionApiService, useValue: sessionApiServiceMock },
         { provide: SessionService, useValue: sessionServiceMock },
@@ -87,11 +85,10 @@ describe('FormComponent', () => {
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
-  it('devrait créer le composant', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 

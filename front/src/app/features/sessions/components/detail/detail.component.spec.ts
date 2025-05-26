@@ -10,6 +10,8 @@ import { TeacherService } from '../../../../services/teacher.service';
 import { SessionApiService } from '../../services/session-api.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DetailComponent } from './detail.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 
 describe('DetailComponent', () => {
   let component: DetailComponent;
@@ -21,31 +23,36 @@ describe('DetailComponent', () => {
   let activatedRouteMock: any;
   let sessionServiceMock: any;
 
+  // Ajout des mocks manquants
+  const mockSession = {
+    id: 1,
+    name: 'Session',
+    date: new Date('2025-01-01'),
+    teacher_id: 1,
+    description: 'desc',
+    users: [1, 2]
+  };
+  const mockTeacher = { id: 1, firstName: 'John', lastName: 'Doe', createdAt: new Date(), updatedAt: new Date() };
+  const mockSessionService = {
+    sessionInformation: { admin: true, id: 1 }
+  };
+
   beforeEach(async () => {
     sessionApiServiceMock = {
-      detail: jest.fn().mockReturnValue(of({
-        id: 1,
-        name: 'Session',
-        date: '2025-01-01',
-        teacher_id: 1,
-        description: 'desc',
-        users: [1, 2]
-      })),
+      detail: jest.fn().mockReturnValue(of(mockSession)),
       delete: jest.fn().mockReturnValue(of({})),
       participate: jest.fn().mockReturnValue(of({})),
       unParticipate: jest.fn().mockReturnValue(of({}))
     };
     teacherServiceMock = {
-      detail: jest.fn().mockReturnValue(of({ id: 1, firstName: 'John', lastName: 'Doe' }))
+      detail: jest.fn().mockReturnValue(of(mockTeacher))
     };
     matSnackBarMock = { open: jest.fn() };
     routerMock = { navigate: jest.fn() };
     activatedRouteMock = {
       snapshot: { paramMap: { get: jest.fn().mockReturnValue('1') } }
     };
-    sessionServiceMock = {
-      sessionInformation: { admin: true, id: 1 }
-    };
+    sessionServiceMock = mockSessionService;
 
     await TestBed.configureTestingModule({
       imports: [
@@ -74,8 +81,7 @@ describe('DetailComponent', () => {
     component.session = mockSession;
     component.teacher = mockTeacher;
     component.isAdmin = mockSessionService.sessionInformation.admin;
-    component.sessionId = `${mockSession.id}`; // Utiliser une chaîne pour sessionId
-
+    component.sessionId = `${mockSession.id}`; 
     fixture.detectChanges();
   });
 

@@ -1,11 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { of } from 'rxjs';
 
-import { ListComponent } from './list.component';
-import { SessionService } from 'src/app/services/session.service';
-import { SessionApiService } from '../../services/session-api.service';
 import { Session } from '../../interfaces/session.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
