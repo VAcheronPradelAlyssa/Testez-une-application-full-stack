@@ -51,6 +51,8 @@ describe('DetailComponent', () => {
       imports: [
         RouterTestingModule,
         HttpClientModule,
+        MatCardModule,
+        MatIconModule,
         MatSnackBarModule,
         ReactiveFormsModule
       ],
@@ -67,6 +69,13 @@ describe('DetailComponent', () => {
 
     fixture = TestBed.createComponent(DetailComponent);
     component = fixture.componentInstance;
+
+    // Initialisation des données du composant avant detectChanges
+    component.session = mockSession;
+    component.teacher = mockTeacher;
+    component.isAdmin = mockSessionService.sessionInformation.admin;
+    component.sessionId = `${mockSession.id}`; // Utiliser une chaîne pour sessionId
+
     fixture.detectChanges();
   });
 

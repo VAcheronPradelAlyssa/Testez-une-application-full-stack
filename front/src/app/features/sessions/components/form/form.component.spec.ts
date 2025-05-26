@@ -68,13 +68,13 @@ describe('FormComponent', () => {
         RouterTestingModule,
         HttpClientModule,
         MatCardModule,
-        MatIconModule,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
         BrowserAnimationsModule,
         NoopAnimationsModule
       ],
+      declarations: [FormComponent],
       providers: [
         { provide: SessionApiService, useValue: sessionApiServiceMock },
         { provide: SessionService, useValue: sessionServiceMock },
@@ -87,10 +87,11 @@ describe('FormComponent', () => {
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('devrait créer le composant', () => {
     expect(component).toBeTruthy();
   });
 

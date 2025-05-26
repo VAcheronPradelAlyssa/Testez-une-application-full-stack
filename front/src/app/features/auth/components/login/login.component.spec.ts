@@ -69,7 +69,7 @@ describe('LoginComponent', () => {
     const loginData = { email: 'test@example.com', password: 'password123' };
     component.form.setValue(loginData);
 
-    const fakeResponse = { token: 'jwt-token' };
+    const fakeResponse = { token: 'jwt-token', id: 1, username: 'yoga@studio.com', firstName: 'Admin', lastName: 'Admin', isAdmin: true };
     (authServiceMock.login as jest.Mock).mockReturnValue(of(fakeResponse));
 
     component.submit();

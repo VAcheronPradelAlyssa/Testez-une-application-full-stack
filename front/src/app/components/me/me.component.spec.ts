@@ -47,6 +47,8 @@ describe('MeComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(MeComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    matSnackBar = TestBed.inject(MatSnackBar);
     fixture.detectChanges();
   });
 
