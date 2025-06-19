@@ -17,11 +17,7 @@ describe('Delete Session', () => {
   ];
 
   it('Delete a session', () => {
-    // ─── 1. FAKE BACKEND ─────────────────────────────────────
-    cy.intercept('POST', '/api/auth/login', {
-      body: { id: 1, username: 'userName', admin: true }
-    }).as('login');
-
+    // 1. Mock backend
     cy.intercept('GET', '/api/teacher', { body: teachers }).as('getTeachers');
 
     cy.intercept('GET', '/api/session', {
@@ -54,34 +50,24 @@ describe('Delete Session', () => {
 
     cy.intercept('DELETE', '/api/session/1', { statusCode: 200 }).as('deleteSession');
 
-    // ─── 2. VISIT + LOGIN ────────────────────────────────────
-    cy.visit('/login');
-    cy.get('input[formControlName=email]').type("yoga@studio.com");
-    cy.get('input[formControlName=password]').type("test!1234");
-    cy.get('form').submit();
+    // 2. Connexion admin via la commande custom
+    cy.loginAsAdmin();
 
-    // Attends que la redirection soit faite et que le listing soit récupéré
-    cy.wait('@login');
     cy.wait('@getSessions');
 
-    // ─── 3. CLIQUE SUR “Edit” ───────────────────────────────
-    // Trouvez une session dans la liste et cliquez sur le bouton "Edit"
+    // 3. CLIQUE SUR “Detail”
     cy.contains('A session name').parents('mat-card').first().within(() => {
       cy.get('button').contains("Detail").click();
     });
 
-    // Attend que la requête de détail soit faite
     cy.wait('@getSession');
 
-    // ─── 4. CLIQUE SUR “Delete” ───────────────────────────────
-    // Cliquez sur le bouton "Delete" pour supprimer la session
+    // 4. CLIQUE SUR “Delete”
     cy.get('button').contains("Delete").click();
 
-    // Attend que la requête de suppression soit terminée
     cy.wait('@deleteSession');
 
-    // ─── 5. VÉRIFICATIONS FINALES ────────────────────────────
-    // Vérifiez que le message de succès est affiché
+    // 5. Vérifie le message de succès
     cy.get('.mat-snack-bar-container').should('be.visible').and('contain', 'Session deleted !');
 
   });

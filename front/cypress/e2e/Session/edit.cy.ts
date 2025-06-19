@@ -18,14 +18,8 @@ describe('Session edit e2e test', () => {
     }
   ];
 
-  it('Edit a session', () => {
-    // ─── 1. FAKE BACKEND ─────────────────────────────────────
-    cy.intercept('POST', '/api/auth/login', {
-      body: { id: 1, username: 'userName', admin: true }
-    }).as('login');
-
+  beforeEach(() => {
     cy.intercept('GET', '/api/teacher', { body: teachers }).as('getTeachers');
-
     cy.intercept('GET', '/api/session', {
       body: [
         {
@@ -40,7 +34,6 @@ describe('Session edit e2e test', () => {
         }
       ]
     }).as('getSessions');
-
     cy.intercept('GET', '/api/session/1', {
       body: {
         id: 1,
@@ -53,39 +46,36 @@ describe('Session edit e2e test', () => {
         updatedAt: new Date()
       }
     }).as('getSession');
-
     cy.intercept('PUT', '/api/session/1', { statusCode: 200 }).as('updateSession');
-
-    // ─── 2. VISIT + LOGIN ────────────────────────────────────
-    cy.visit('/login');
-    cy.get('input[formControlName=email]').type("yoga@studio.com");
-    cy.get('input[formControlName=password]').type("test!1234");
-    cy.get('form').submit();
-
-    // Attends que la redirection soit faite et que le listing soit récupéré
-    cy.wait('@login');
+    cy.loginAsAdmin();
     cy.wait('@getSessions');
-
-    // ─── 3. CLIQUE SUR “Edit” ───────────────────────────────
-    // Attend que le bouton soit dans le DOM, puis utilise un sélecteur plus robuste
     cy.contains('button', 'Edit').should('be.visible').click();
-
-    // Attend que la requête de détail soit faite
     cy.wait('@getSession');
-
-    // ─── 4. VÉRIFICATIONS FINALES ────────────────────────────
     cy.url().should('include', '/sessions/update/1');
+  });
 
-    // Utilisez un sélecteur plus spécifique pour cibler l'élément input
-    cy.get('mat-form-field input[formControlName=name]').should('be.visible').clear().type("A session name");
-
-    // Soumettez le formulaire
-    cy.get('button[type=submit]').click();
-
-    // Attendez que la requête de mise à jour soit terminée
+  it('Edit a session successfully', () => {
+    cy.get('mat-form-field input[formControlName=name]').should('be.visible').clear().type("A session name modifiée");
+    cy.get('input[formControlName=date]').clear().type('2025-07-01');
+    cy.get('mat-select[formControlName=teacher_id]').click();
+    cy.get('.cdk-overlay-container .mat-select-panel .mat-option-text').contains(teachers[1].firstName).click();
+    cy.get('textarea[formControlName=description]').clear().type('Nouvelle description');
+    cy.get('button[type=submit]').should('not.be.disabled').click();
     cy.wait('@updateSession');
-
-    // Vérifiez que l'utilisateur est redirigé vers la page des sessions
     cy.url().should('include', '/sessions');
+    cy.get('.mat-snack-bar-container').should('be.visible').and('contain', 'Session updated !');
+  });
+
+  it('should keep the Save button disabled if required fields are missing', () => {
+    // Vide un champ obligatoire
+    cy.get('mat-form-field input[formControlName=name]').clear();
+    cy.get('button[type=submit]').should('be.disabled');
+    // Remplis le champ name, mais vide la description
+    cy.get('mat-form-field input[formControlName=name]').type('A session name');
+    cy.get('textarea[formControlName=description]').clear();
+    cy.get('button[type=submit]').should('be.disabled');
+    // Remplis tous les champs pour vérifier que le bouton s'active
+    cy.get('textarea[formControlName=description]').type('Nouvelle description');
+    cy.get('button[type=submit]').should('not.be.disabled');
   });
 });

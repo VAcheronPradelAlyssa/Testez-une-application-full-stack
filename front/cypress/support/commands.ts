@@ -55,7 +55,7 @@ function loginAsAdmin(): void {
   }).as("login");
 
   cy.get('input[formControlName=email]').should('be.visible').type('yoga@studio.com');
-  cy.get('input[formControlName=password]').should('be.visible').type('test!1234{enter}');
+  cy.get('input[formControlName=password]').should('be.visible').type('test!1234{enter}{enter}');
   cy.url().should('include', '/sessions');
 }
 
