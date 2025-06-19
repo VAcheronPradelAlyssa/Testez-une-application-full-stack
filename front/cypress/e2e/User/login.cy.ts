@@ -1,10 +1,11 @@
 /// <reference types="cypress" />
 
 describe('Login spec', () => {
-  it('Login successful', () => {
+  beforeEach(() => {
     cy.visit('/login');
+  });
 
-    // Interception de la requête POST pour le login
+  it('Login successful', () => {
     cy.intercept('POST', '/api/auth/login', {
       statusCode: 200,
       body: {
@@ -13,11 +14,10 @@ describe('Login spec', () => {
         firstName: 'First',
         lastName: 'Last',
         admin: true,
-        token: 'fake-jwt-token', // Assurez-vous d'ajouter un token si nécessaire
+        token: 'fake-jwt-token',
       },
     }).as('loginRequest');
 
-    // Interception de la requête GET pour récupérer la session
     cy.intercept('GET', '/api/session', {
       statusCode: 200,
       body: {
@@ -29,20 +29,48 @@ describe('Login spec', () => {
       },
     }).as('sessionRequest');
 
-    // Remplir le formulaire de connexion avec une autre adresse email
-    cy.get('input[formControlName=email]').type("example@domain.com"); // Nouvelle adresse email
+    cy.get('input[formControlName=email]').type("example@domain.com");
     cy.get('input[formControlName=password]').type("test!1234");
-
-    // Clic sur le bouton de soumission du formulaire
     cy.get('form').submit();
 
-    // Attendre la réponse de la connexion
     cy.wait('@loginRequest');
-
-    // Vérifier que l'URL a changé pour inclure /sessions
     cy.url().should('include', '/sessions');
-
-    // Attendre la requête de session et vérifier que la session est accessible
     cy.wait('@sessionRequest');
+  });
+
+  it('Affiche "An error occurred" si le mot de passe est incorrect', () => {
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 401,
+      body: { message: 'Invalid credentials' }
+    }).as('loginRequest');
+
+    cy.get('input[formControlName=email]').type("example@domain.com");
+    cy.get('input[formControlName=password]').type("wrongpassword");
+    cy.get('form').submit();
+
+    cy.wait('@loginRequest');
+    cy.contains('An error occurred').should('be.visible');
+  });
+
+  it('Affiche "An error occurred" si le champ email est vide', () => {
+    cy.get('input[formControlName=password]').type("test!1234");
+    cy.get('form').submit();
+    cy.contains('An error occurred').should('be.visible');
+  });
+
+  it('Affiche "An error occurred" si le champ mot de passe est vide', () => {
+    cy.get('input[formControlName=email]').type("example@domain.com");
+    cy.get('form').submit();
+    cy.contains('An error occurred').should('be.visible');
+  });
+
+  it('Affiche "An error occurred" si les deux champs sont vides', () => {
+    cy.get('form').submit();
+    cy.contains('An error occurred').should('be.visible');
+  });
+
+  it('Bloque l’accès aux pages protégées sans être connecté', () => {
+    cy.visit('/sessions');
+    cy.url().should('include', '/login');
   });
 });
