@@ -37,11 +37,8 @@ public class AuthControllerTest {
 
     @Test
     public void authenticateUserTest() throws Exception {
-
         String email = "yoga@studio.com";
-
         LoginRequest loginRequest = new LoginRequest();
-
         loginRequest.setEmail(email);
         loginRequest.setPassword("Mypassword8$");
 
@@ -54,61 +51,96 @@ public class AuthControllerTest {
                 JwtResponse user = objectMapper.readValue(result, JwtResponse.class);
                 assertEquals(email, user.getUsername());
             });
-
     }
 
-    @Nested
-    public class registerUserTest{
-        @Test
-        void shouldRegister() throws Exception {
+    @Test
+    public void authenticateUserWithWrongPassword_shouldReturnUnauthorized() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("yoga@studio.com");
+        loginRequest.setPassword("wrongPassword");
 
-            String newEmail = "yoga2@studio.com";
-
-            // GIVEN
-            SignupRequest signUpRequest = new SignupRequest();
-            signUpRequest.setEmail(newEmail);
-            signUpRequest.setFirstName("new");
-            signUpRequest.setLastName("one");
-            signUpRequest.setPassword("password");
-
-            // WHEN & THEN
-            mockMvc.perform(post("/api/auth/register")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signUpRequest)))
-                    .andExpect(status().isOk());
-        }
-        @Test
-        void shouldBadRequest() throws Exception {
-
-            // GIVEN
-            SignupRequest signUpRequest = new SignupRequest();
-            signUpRequest.setEmail(null);
-            signUpRequest.setFirstName("Test");
-            signUpRequest.setLastName("User");
-            signUpRequest.setPassword("password");
-
-            // WHEN & THEN
-            mockMvc.perform(post("/api/auth/register")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signUpRequest)))
-                    .andExpect(status().isBadRequest());
-        }
-        @Test
-        void shouldBadRequestEmailAlreadyExists() throws Exception {
-
-            // GIVEN
-            SignupRequest signUpRequest = new SignupRequest();
-            signUpRequest.setEmail("yoga@studio.com");
-            signUpRequest.setFirstName("Test");
-            signUpRequest.setLastName("User");
-            signUpRequest.setPassword("password");
-
-            // WHEN & THEN
-            mockMvc.perform(post("/api/auth/register")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signUpRequest)))
-                    .andExpect(status().isBadRequest());
-        }
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    public void authenticateUserWithUnknownEmail_shouldReturnUnauthorized() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("unknown@studio.com");
+        loginRequest.setPassword("anyPassword");
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void authenticateUserWithEmptyEmail_shouldReturnBadRequest() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("");
+        loginRequest.setPassword("Mypassword8$");
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void authenticateUserWithEmptyPassword_shouldReturnBadRequest() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("yoga@studio.com");
+        loginRequest.setPassword("");
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldRegister() throws Exception {
+        String newEmail = "yoga2@studio.com";
+        SignupRequest signUpRequest = new SignupRequest();
+        signUpRequest.setEmail(newEmail);
+        signUpRequest.setFirstName("new");
+        signUpRequest.setLastName("one");
+        signUpRequest.setPassword("password");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldBadRequest() throws Exception {
+        SignupRequest signUpRequest = new SignupRequest();
+        signUpRequest.setEmail(null);
+        signUpRequest.setFirstName("Test");
+        signUpRequest.setLastName("User");
+        signUpRequest.setPassword("password");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldBadRequestEmailAlreadyExists() throws Exception {
+        SignupRequest signUpRequest = new SignupRequest();
+        signUpRequest.setEmail("yoga@studio.com");
+        signUpRequest.setFirstName("Test");
+        signUpRequest.setLastName("User");
+        signUpRequest.setPassword("password");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest)))
+                .andExpect(status().isBadRequest());
+    }
 }
