@@ -16,19 +16,9 @@ describe('Create Session', () => {
     }
   ];
 
-  beforeEach(() => {
-    // Visitez la page de connexion
+  function loginAsAdmin() {
     cy.visit('/login');
-
-    // Attendez que la page soit complètement chargée
     cy.contains('Login').should('be.visible');
-
-    // Intercepte la requête GET vers '/api/teacher'
-    cy.intercept('GET', '/api/teacher', {
-      body: teachers
-    });
-
-    // Simulez la connexion de l'utilisateur en tant qu'administrateur
     cy.intercept('POST', '/api/auth/login', {
       body: {
         id: 1,
@@ -37,32 +27,31 @@ describe('Create Session', () => {
         lastName: 'lastName',
         admin: true
       },
-    });
-
-    // Remplissez le formulaire de connexion
+    }).as('login');
     cy.get('input[formControlName=email]').should('be.visible').type("yoga@studio.com");
     cy.get('input[formControlName=password]').should('be.visible').type("test!1234");
     cy.get('form').submit();
-
-    // Vérifiez que l'utilisateur est connecté et redirigé vers la page des sessions
+    cy.wait('@login');
     cy.url().should('include', '/sessions');
+  }
 
-    // Cliquez sur le bouton pour créer une nouvelle session
+  beforeEach(() => {
+    cy.intercept('GET', '/api/teacher', {
+      body: teachers
+    }).as('getTeachers');
+    loginAsAdmin();
     cy.contains('Create').should('be.visible').click();
   });
 
   it('should create a new session successfully', () => {
-    // Remplissez le formulaire de création de session
     cy.get('input[formControlName=name]').should('be.visible').type('New Session');
     cy.get('input[formControlName=date]').should('be.visible').type('2025-06-01');
 
-    // Sélectionnez un enseignant
     cy.get('mat-select[formControlName=teacher_id]').click();
     cy.get('.cdk-overlay-container .mat-select-panel .mat-option-text').contains(teachers[0].firstName).click();
 
     cy.get('textarea[formControlName=description]').should('be.visible').type('Description of the new session');
 
-    // Intercepte la requête POST pour créer une session
     cy.intercept('POST', '/api/session', {
       statusCode: 201,
       body: {
@@ -74,14 +63,31 @@ describe('Create Session', () => {
       }
     }).as('createSession');
 
-    // Cliquez sur le bouton "Save" pour soumettre le formulaire
     cy.get('button[type="submit"]').contains('Save').should('be.visible').click();
 
-
-    // Vérifiez que l'utilisateur est redirigé vers la page des sessions
+    cy.wait('@createSession');
     cy.url().should('include', '/sessions');
-     // Vérifiez que le message de succès est affiché
-     cy.get('.mat-snack-bar-container').should('be.visible').and('contain', 'Session created !');
+    cy.get('.mat-snack-bar-container').should('be.visible').and('contain', 'Session created !');
+  });
 
+  it('should keep the Save button disabled if required fields are missing', () => {
+    // On est déjà connecté et sur la page de création grâce au beforeEach
+    // Le bouton doit être désactivé si le formulaire est vide
+    cy.get('button[type="submit"]').should('be.disabled');
+
+    // Remplir seulement un champ
+    cy.get('input[formControlName=name]').type('Incomplete Session');
+    cy.get('button[type="submit"]').should('be.disabled');
+
+    // Remplir tous les champs sauf un
+    cy.get('input[formControlName=date]').type('2025-06-01');
+    cy.get('mat-select[formControlName=teacher_id]').click();
+    cy.get('.cdk-overlay-container .mat-select-panel .mat-option-text').contains(teachers[0].firstName).click();
+    // Ne pas remplir la description
+    cy.get('button[type="submit"]').should('be.disabled');
+
+    // Remplir tous les champs
+    cy.get('textarea[formControlName=description]').type('Description complète');
+    cy.get('button[type="submit"]').should('not.be.disabled');
   });
 });

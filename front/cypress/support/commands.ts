@@ -1,6 +1,7 @@
- declare namespace Cypress {
+declare namespace Cypress {
    interface Chainable<Subject = any> {
      login(email: string, password: string): typeof login;
+     loginAsAdmin(): void; // Ajout
    }
 }
 
@@ -40,7 +41,26 @@
     cy.url().should('include', '/sessions')
 }
 
+function loginAsAdmin(): void {
+  cy.visit('/login');
+
+  cy.intercept('POST', '/api/auth/login', {
+    body: {
+      id: 1,
+      username: 'admin',
+      firstName: 'Admin',
+      lastName: 'User',
+      admin: true
+    },
+  }).as("login");
+
+  cy.get('input[formControlName=email]').should('be.visible').type('yoga@studio.com');
+  cy.get('input[formControlName=password]').should('be.visible').type('test!1234{enter}');
+  cy.url().should('include', '/sessions');
+}
+
 Cypress.Commands.add('login', login);
+Cypress.Commands.add('loginAsAdmin', loginAsAdmin);
 
 // ***********************************************
 // This example namespace declaration will help
