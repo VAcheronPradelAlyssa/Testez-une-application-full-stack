@@ -89,8 +89,7 @@ class SessionControllerTest {
                 .andDo(r -> {
                     String result = r.getResponse().getContentAsString();
                     List<SessionDto> sessions = List.of(objectMapper.readValue(result, SessionDto[].class));
-                    assertNotNull(sessions);
-                    assertEquals(2, sessions.size());
+                    assertEquals(2, sessions.size()); // adapte selon le nombre attendu dans script.sql
                 });
     }
 
@@ -265,6 +264,23 @@ class SessionControllerTest {
         }
     }
 
-
-
+    @Test
+@WithMockUser
+void findAllEmptyTest() throws Exception {
+    mockMvc.perform(get("/api/session")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(r -> {
+            String result = r.getResponse().getContentAsString();
+            List<SessionDto> sessions = List.of(objectMapper.readValue(result, SessionDto[].class));
+            assertEquals(2, sessions.size()); // adapte ce nombre à ton script.sql
+        });
+}
+    @Test
+    void findAllUnauthorizedTest() throws Exception {
+        // Si la route est protégée, retire @WithMockUser pour ce test
+        mockMvc.perform(get("/api/session")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnauthorized());
+    }
 }

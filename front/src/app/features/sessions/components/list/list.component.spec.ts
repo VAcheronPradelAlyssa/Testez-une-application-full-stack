@@ -100,4 +100,30 @@ describe('ListComponent', () => {
       done();
     });
   });
+
+  it('should show Create and Edit buttons for admin', () => {
+    // On modifie le mock pour simuler un admin
+    const sessionService = TestBed.inject(SessionService);
+    sessionService.sessionInformation = { admin: true } as any;
+    // On crée un nouveau composant pour prendre en compte la modif
+    const adminFixture = TestBed.createComponent(ListComponent);
+    adminFixture.detectChanges();
+    const compiled = adminFixture.nativeElement as HTMLElement;
+    // Le bouton Create a routerLink="create" (pas "/sessions/create")
+    expect(compiled.querySelector('button[routerLink="create"]')).toBeTruthy();
+    // Le bouton Edit a [routerLink]="['update',session.id]" donc on cherche tous les boutons avec 'update'
+    expect(compiled.querySelector('button[ng-reflect-router-link^="update"]')).toBeTruthy();
+  });
+
+  it('should not show Create and Edit buttons for non-admin', () => {
+    // On modifie le mock pour simuler un non-admin
+    const sessionService = TestBed.inject(SessionService);
+    sessionService.sessionInformation = { admin: false } as any;
+    // On crée un nouveau composant pour prendre en compte la modif
+    const userFixture = TestBed.createComponent(ListComponent);
+    userFixture.detectChanges();
+    const compiled = userFixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('button[routerLink="create"]')).toBeFalsy();
+    expect(compiled.querySelector('button[ng-reflect-router-link^="update"]')).toBeFalsy();
+  });
 });
