@@ -69,6 +69,5 @@ describe('Delete Session', () => {
 
     // 5. Vérifie le message de succès
     cy.get('.mat-snack-bar-container').should('be.visible').and('contain', 'Session deleted !');
-
   });
 });

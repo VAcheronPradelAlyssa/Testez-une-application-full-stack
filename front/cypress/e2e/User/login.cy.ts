@@ -2,6 +2,8 @@
 
 describe('Login spec', () => {
   beforeEach(() => {
+    cy.clearCookies();
+    cy.clearLocalStorage();
     cy.visit('/login');
   });
 
@@ -29,11 +31,7 @@ describe('Login spec', () => {
       },
     }).as('sessionRequest');
 
-    cy.get('input[formControlName=email]').type("example@domain.com");
-    cy.get('input[formControlName=password]').type("test!1234");
-    cy.get('form').submit();
-
-    cy.wait('@loginRequest');
+    cy.login('example@domain.com', 'test!1234', true);
     cy.url().should('include', '/sessions');
     cy.wait('@sessionRequest');
   });
@@ -44,11 +42,9 @@ describe('Login spec', () => {
       body: { message: 'Invalid credentials' }
     }).as('loginRequest');
 
-    cy.get('input[formControlName=email]').type("example@domain.com");
-    cy.get('input[formControlName=password]').type("wrongpassword");
+    cy.get('input[formControlName=email]').type('example@domain.com');
+    cy.get('input[formControlName=password]').type('wrongpassword');
     cy.get('form').submit();
-
-    cy.wait('@loginRequest');
     cy.contains('An error occurred').should('be.visible');
   });
 

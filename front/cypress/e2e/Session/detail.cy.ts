@@ -39,12 +39,7 @@ describe('Detail Session - affichage infos et boutons selon le rôle', () => {
     }).as('login');
     interceptCommon();
 
-    cy.visit('/login');
-    cy.get('input[formControlName=email]').type("nonadmin@studio.com");
-    cy.get('input[formControlName=password]').type("test!1234");
-    cy.get('form').submit();
-
-    cy.wait('@login');
+    cy.login('nonadmin@studio.com', 'test!1234');
     cy.wait('@getSessions');
 
     cy.contains('Test').parents('mat-card').first().within(() => {
@@ -63,17 +58,9 @@ describe('Detail Session - affichage infos et boutons selon le rôle', () => {
   });
 
   it('affiche les détails et le bouton Delete pour un admin', () => {
-    cy.intercept('POST', '/api/auth/login', {
-      body: { id: 1, username: 'adminUser', admin: true }
-    }).as('login');
     interceptCommon();
 
-    cy.visit('/login');
-    cy.get('input[formControlName=email]').type("admin@studio.com");
-    cy.get('input[formControlName=password]').type("adminpass");
-    cy.get('form').submit();
-
-    cy.wait('@login');
+    cy.loginAsAdmin();
     cy.wait('@getSessions');
 
     cy.contains('Test').parents('mat-card').first().within(() => {

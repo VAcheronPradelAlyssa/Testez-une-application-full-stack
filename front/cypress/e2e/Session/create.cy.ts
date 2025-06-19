@@ -16,30 +16,11 @@ describe('Create Session', () => {
     }
   ];
 
-  function loginAsAdmin() {
-    cy.visit('/login');
-    cy.contains('Login').should('be.visible');
-    cy.intercept('POST', '/api/auth/login', {
-      body: {
-        id: 1,
-        username: 'userName',
-        firstName: 'firstName',
-        lastName: 'lastName',
-        admin: true
-      },
-    }).as('login');
-    cy.get('input[formControlName=email]').should('be.visible').type("yoga@studio.com");
-    cy.get('input[formControlName=password]').should('be.visible').type("test!1234");
-    cy.get('form').submit();
-    cy.wait('@login');
-    cy.url().should('include', '/sessions');
-  }
-
   beforeEach(() => {
     cy.intercept('GET', '/api/teacher', {
       body: teachers
     }).as('getTeachers');
-    loginAsAdmin();
+    cy.loginAsAdmin();
     cy.contains('Create').should('be.visible').click();
   });
 

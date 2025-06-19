@@ -1,62 +1,33 @@
 declare namespace Cypress {
    interface Chainable<Subject = any> {
-     login(email: string, password: string): typeof login;
-     loginAsAdmin(): void; // Ajout
+     login(email: string, password: string, admin?: boolean): void;
+     loginAsAdmin(): void;
    }
 }
 
- function login(email: string, password: string): void {
-    cy.visit('/login')
-
-    cy.intercept('POST', '/api/auth/login', {
-      body: {
-        id: 1,
-        username: 'userName',
-        firstName: 'firstName',
-        lastName: 'lastName',
-        admin: true
-      },
-    }).as("login");
-
-    cy.intercept(
-      {
-        method: 'GET',
-        url: '/api/session',
-      },
-      [ {
-          id: 1,
-          name: 'Session name',
-          date: new Date(),
-          teacher_id: 1,
-          description: "Test description",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }]).as('session')
-
-    cy.get('input[formControlName=email]').type(email)
-    cy.get('input[formControlName=password]').type(`${password}{enter}{enter}`)
-
-    // V�rifie que l'utilisateur est redirig� vers la page des sessions
-    cy.url().should('include', '/sessions')
-}
-
-function loginAsAdmin(): void {
+// Connexion générique : admin ou non-admin selon le paramètre
+function login(email: string, password: string, admin: boolean = false): void {
   cy.visit('/login');
 
   cy.intercept('POST', '/api/auth/login', {
     body: {
-      id: 1,
-      username: 'admin',
-      firstName: 'Admin',
-      lastName: 'User',
-      admin: true
+      id: admin ? 1 : 2,
+      username: email,
+      firstName: admin ? 'Admin' : 'User',
+      lastName: admin ? 'User' : 'Test',
+      admin: admin
     },
   }).as("login");
 
-  cy.get('input[formControlName=email]').should('be.visible').type('yoga@studio.com');
-  cy.get('input[formControlName=password]').should('be.visible').type('test!1234{enter}{enter}');
+  cy.get('input[formControlName=email]').should('be.visible').type(email);
+  cy.get('input[formControlName=password]').should('be.visible').type(`${password}{enter}{enter}`);
+  cy.wait('@login');
   cy.url().should('include', '/sessions');
+}
+
+// Connexion admin dédiée
+function loginAsAdmin(): void {
+  login('yoga@studio.com', 'test!1234', true);
 }
 
 Cypress.Commands.add('login', login);
