@@ -143,4 +143,61 @@ public class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(signUpRequest)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    public void shouldBadRequestWhenFirstNameMissing() throws Exception {
+        SignupRequest signUpRequest = new SignupRequest();
+        signUpRequest.setEmail("new@studio.com");
+        signUpRequest.setFirstName(null);
+        signUpRequest.setLastName("User");
+        signUpRequest.setPassword("password");
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(signUpRequest)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldBadRequestWhenLastNameMissing() throws Exception {
+        SignupRequest signUpRequest = new SignupRequest();
+        signUpRequest.setEmail("new@studio.com");
+        signUpRequest.setFirstName("Test");
+        signUpRequest.setLastName(null);
+        signUpRequest.setPassword("password");
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(signUpRequest)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldBadRequestWhenPasswordMissing() throws Exception {
+        SignupRequest signUpRequest = new SignupRequest();
+        signUpRequest.setEmail("new@studio.com");
+        signUpRequest.setFirstName("Test");
+        signUpRequest.setLastName("User");
+        signUpRequest.setPassword(null);
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(signUpRequest)))
+            .andExpect(status().isBadRequest());
+    }
+
+    // Si tu valides le format de l'email côté back :
+    @Test
+    public void shouldBadRequestWhenEmailInvalid() throws Exception {
+        SignupRequest signUpRequest = new SignupRequest();
+        signUpRequest.setEmail("not-an-email");
+        signUpRequest.setFirstName("Test");
+        signUpRequest.setLastName("User");
+        signUpRequest.setPassword("password");
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(signUpRequest)))
+            .andExpect(status().isBadRequest());
+    }
 }

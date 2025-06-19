@@ -33,4 +33,16 @@ describe('User Registration', () => {
     // Attendre l’appel réseau sans autre vérification
     cy.wait('@registerExisting');
   });
+
+  it('should show error if required fields are missing', () => {
+    cy.visit('/register');
+    // Soumettre sans rien remplir
+    cy.get('form').submit();
+    cy.contains('An error occurred').should('be.visible');
+
+    // Remplir partiellement
+    cy.get('input[formControlName=firstName]').type('John');
+    cy.get('form').submit();
+    cy.contains('An error occurred').should('be.visible');
+  });
 });
